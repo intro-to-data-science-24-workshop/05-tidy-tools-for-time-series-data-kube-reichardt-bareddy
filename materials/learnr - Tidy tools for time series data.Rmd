@@ -1,0 +1,194 @@
+---
+title: "Tidy tools for time series data"
+tutorial:
+  id: "tidy-tools-for-time-series-data"
+  version: 0.9
+output: learnr::tutorial
+runtime: shiny_prerendered
+---
+
+```{r setup, include=FALSE}
+library(learnr)
+library(tidyverse)
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Some tidy data refreshers
+
+### The tidy manifesto
+
+Can be accessed with `vignette("manifesto")`
+
+-   first try of our heavenly `R`ather Hadley Wickham to codify the *tidy principles*
+
+-   "aspirational and likely to change heavily in the future"
+
+-   other definitions (e.g. [Tidy Data](https://www.jstatsoft.org/article/view/v059i10), [tidy evaluation](https://adv-r.hadley.nz/evaluation.html)) exist within the tidyverse already
+
+#### What does the tidy manifesto tell us about the *tidyverse*?
+
+The tidyverse is an ever-evolving set of packages that work together and adhere to principles based on humam-centered design and reusability. These principles ensure that once you master one tidyverse package, it becomes easier to pick up others, as they follow similar rules and work well together.
+
+> However, it also is not a snooty self-appraisal of the tidyverse. It heavily emphasizes that **great packages** exist **outside** in other *-verses*.
+
+We can sum up the principles as:
+
+1.  **Reuse Existing Data Structures**\
+    Tidyverse packages are designed to work with existing R data structures, primarily data frames or tibbles for rectangular data (rows as observations, columns as variables). For specialized data types (e.g., strings, dates), packages like `stringr` or `lubridate` handle specific variable types, typically using base R vector types or creating simple S3 classes if needed.
+
+2.  **Compose Simple Functions with the Pipe**\
+    In the tidyverse, complex data tasks are handled by combining simple functions using the pipe operator (`%>%`). Each function is designed to do one thing clearly and well, making it easy to understand and combine with others in a pipeline.\
+    Unlike `baseR` or other packages, the data object **always** goes first.
+
+3.  **Embrace Functional Programming\
+    **Tidyverse packages embrace R’s functional programming style, preferring immutable objects (which don’t change after creation) and functions like `map` from `purrr` for looping over data, rather than traditional for-loops.
+
+    Functional programming also means working with generic [S3 and S4 functions](https://cran.r-project.org/doc/contrib/Genolini-S4tutorialV0-5en.pdf) that integrate well with pipelines, focusing on predictable, consistent transformations and minimizing mutable state to keep code reliable.
+
+*and most importantly*...
+
+4.  **Design for Humans**\
+    The interface should be human-friendly, focusing on readability and ease of use. Function names (verbals) are designed to be descriptive and long enough to be informative, with naming conventions that work well with RStudio’s autocomplete.
+
+    Function families often use a common prefix (like `string_` in `stringr`), making it easy for users to explore related functions.
+
+    Computer efficiency is not irrelevant (and also not bad in the *tidyverse*, but does not go before human-centered design.
+
+Write down (load) all the packages from the *tidyverse* that you know of so far. Ask yourself: Why and in what sense do they use tidy principles? Can you understand the inherent nature that connects the *tidyverse*?
+
+```{r tidy-ex, exercise=TRUE}
+
+```
+
+To check your own knowledge on the tidyverse prior to diving into this `learnr` tutorial, answer the questions below. Multiple options might be true (but not for all questions).
+
+```{r tidy-quiz, echo=FALSE}
+quiz(
+  question("What is the main purpose of connecting packages in the tidyverse?",
+    answer("Creating a sworn in community of advanced R people who despise anything else."),
+    answer("Allow easy integration across packages that all follow the same programming philosophy and a basic set of object standards.", correct = TRUE),
+    answer("Provide more content to the maintainers of the tidyverse to write online books about."),
+    answer("Have a reason for cool hexagonal stickers on your laptop.", correct = TRUE)
+  ),
+  question("Which package contains functions for evaluating multiple models?",
+    answer("broom", correct = TRUE),
+    answer("fable", correct = TRUE),
+    answer("purrr", correct = TRUE),
+    answer("dplyr")
+  ),
+  question("What is not a tidy data principle?",
+    answer("Dates are always parsed using \'lubridate\'", correct = TRUE),
+    answer("Each row is an observation."),
+    answer("Each column is a variable"),
+    answer("Each observational unit is kept in a separate table."),
+    answer("Each cell may have a nested dataframe within.")
+  )
+)
+```
+
+## The *tsibble* package
+
+### How do tidy principles apply to *tsibble*?
+
+Since time-series data are a bit structurally different from normal tidy data, the tidy principles are adapted
+
+### Exploring time-series datasets
+
+In this tutorial, we will be working with the `ansett` dataset from the `tsibbledata` package. The dataset contains passenger data of multiple flight routes of the *Ansett* airline.
+
+```{r prep, include=FALSE, echo=TRUE}
+aussie_flights <- tsibbledata::ansett %>% as_tibble
+tsibbledata::ansett
+```
+
+-   introduce toy data set
+
+    -   convert to tsibble
+
+    -   explore
+
+    -   show and reinforce what is key and what is index
+
+```{r introduce-toy-data, exercise=TRUE}
+# sadly, your colleague has saved the ansett data not in the format shown above, but as a normal tibble
+# convert the object into a tsibble by using the correct keys
+aussie_flights <- as_tsibble(___)
+
+# explore the dataset using your own workflow
+# does it contain gaps and/or NAs?
+summary(aussie_flights)
+___
+```
+
+-   Quiz
+
+    -   choose correct time-series structures given different examples / **regular vs irregular**
+
+```{r quiz}
+quiz(
+  question("Select the correct the answer that shows regular time-series data with one key.",
+    answer("base"),
+    answer("tools"),
+    answer("utils", correct = TRUE),
+    answer("codetools")
+  ),
+  question("In the following 'tibble', which row shows the index of the time-series?",
+    answer("Time-series data with wrong indexes", correct = TRUE),
+    answer("tools"),
+    answer("stats"),
+    answer("grid", correct = TRUE)
+  ),
+  question("What type of time-series data is shown in the question before?",
+    answer("Regular time-series data"),
+    answer("Irregular time-series data"),
+    answer("We can not tell.", correct = TRUE)),
+  question("Is above dataset tsibble-tidy from what you see, or do you need to tidy it up (e.g. using tidyr)?",
+    answer("xx", correct = TRUE))
+)
+```
+
+### Data wrangling
+
+-   quick reinforcement that this works the same as in *dplyr*
+
+    -   subsetting date ranges
+
+    -   aggregating
+
+    -   Extra: wider / longer
+
+-   `fill_gaps()` and `index_by()`
+
+**Exercise:** Filter and aggregate data over different periods, explore missing values, and fill gaps where necessary.
+
+## Feature extraction using *feasts*
+
+### Decomposition
+
+-   decomposition using `STL()`
+
+-   decompose the toy data with feasts and write short interpretation on each component
+
+### Extracting features
+
+`feasts()`
+
+In the next section, we will discuss how to combine the outputs from the decomposition and feature extraction with `feasts`' integrated methods for the `ggplot` package.
+
+## Visualization
+
+### Basic workflow
+
+using gg_subseason etc.
+
+`autoplot()`
+
+### Using the *tsibbletalk* package
+
+The `tsibbletalk` package allows the creation of interactive graphics. This is especially beneficial for exploratory data analysis with large amounts of time-series data. Due the multi-faceted nature of time-series data, you might want to simultaneously see single features of a time-series (i.e. trends and cyclic patterns) as well as evaluate model fit parameters.
+
+The package introduces a `shared key` to the *tsibble*, which can be used with the `crosstalk` package (i.e. brushing/coloring across an ensemble of graphics). The shared key allows to color a specific time series in a plot, which will be also color-marked in all other plots where the same time-series data is used.
+
+You can find a short introduction to the crosstalk package [here](Using Crosstalk (rstudio.github.io).
+
+## Bonus: Forecasting with *fable*
