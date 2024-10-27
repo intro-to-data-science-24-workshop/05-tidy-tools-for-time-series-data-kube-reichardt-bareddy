@@ -56,6 +56,7 @@ data %>%
   filter(Animal == "Lambs") %>%
   feasts::gg_season(Count, period = "3 months")
 
+# Let us confirm this with an autocorrelation function
 data %>%
   filter(Animal == "Lambs") %>%
   feasts::ACF(Count) %>%
