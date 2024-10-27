@@ -49,11 +49,11 @@ We can sum up the key principles as:
 *and most importantly*...
 
 4.  **Design for Humans**\
-    The interface should be human-friendly, focusing on readability and ease of use. Function names (verbals) are designed to be descriptive and long enough to be informative, with naming conventions that work well with RStudio’s autocomplete.
+    The interface should be human-friendly, focusing on readability and ease of use. Function names (verbals) are designed to be descriptive and long enough to be informative, with naming conventions that work well with RStudio’s auto-complete.
 
-    Function families often use a common prefix (like `string_` in `stringr`), making it easy for users to explore related functions.
+    Function families often use a common prefix (like `string_*` in `stringr`), making it easy for users to explore related functions.
 
-    Computer efficiency is not irrelevant (and also not bad in the *tidyverse*, but does not go before human-centered design.
+    Computer efficiency is not irrelevant (and also not bad in the *tidyverse*), but does not come before human-centered design.
 
 Write down (load) all the packages from the *tidyverse* that you know of so far. Ask yourself: Why and in what sense do they use tidy principles? Can you understand the inherent nature that connects the *tidyverse*?
 
@@ -71,7 +71,7 @@ quiz(
     answer("Provide more content to the maintainers of the tidyverse to write online books about."),
     answer("Have a reason for cool hexagonal stickers on your laptop.", correct = TRUE)
   ),
-  question("Which package contains functions for evaluating multiple models?",
+  question("Which package(s) contain(s) functions for evaluating multiple models?",
     answer("broom", correct = TRUE),
     answer("fable", correct = TRUE),
     answer("purrr", correct = TRUE),
@@ -113,7 +113,7 @@ The *tidy data rules* are extended in `tsibble` with the following:
 
 ### Exploring time-series datasets
 
-In this tutorial, we will be working with the `ansett` dataset from the `tsibbledata` package. The dataset contains passenger data of multiple flight routes of the *Ansett* airline.
+In this tutorial, we will be working with the `ansett` data set from the `tsibbledata` package. The data set contains passenger data of multiple flight routes of the *Ansett* airline.
 
 ```{r prep, include=FALSE, echo=TRUE}
 aussie_flights <- tsibbledata::ansett %>% as_tibble
@@ -131,9 +131,7 @@ summary(aussie_flights)
 ___
 ```
 
--   Quiz
-
-    -   choose correct time-series structures given different examples / **regular vs irregular**
+Below, you can see *R Output* from different data objects within R. They are labeled `Output A` to `Output X`. Answer the questions below.
 
 ```{r quiz-material, echo=TRUE, include=FALSE}
 # INSERT INCORRECT AND CORRECT TSIBBLE OUTPUTS HERE, FROM WHERE THOOO
