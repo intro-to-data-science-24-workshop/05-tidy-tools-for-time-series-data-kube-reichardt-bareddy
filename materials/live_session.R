@@ -23,11 +23,9 @@ library(ggplot2) # only needed to style plots further
 data <- tsibbledata::aus_livestock
 
 # Check the data frame for which are the index and key(s)
+dim(data)
 str(data)
 interval(data)
-
-### ¯\_(ツ)_/¯ How many rows does the data set have? What does this mean for the amount of observations?
-"YOUR CODE"
 
 ### ¯\_(ツ)_/¯ How many different time-series does the data set consist of?
 ### Can you easily describe them in a table using dplyr::tally()?
@@ -41,7 +39,8 @@ has_gaps(data) %>%
 # Since the data set is huge, we subset only Lambs and get an overview
 autoplot(data %>% filter(Animal == "Lambs"))
 
-### ¯\_(ツ)_/¯ What does this first exploratory plot imply? Try describing using your own words
+### ¯\_(ツ)_/¯ What does this first exploratory plot imply?
+### Try describing using your own words.
 print("I conclude that... Therefore, I suspect the...")
 
 # Using STL feature extraction, we can try to figure out the seasonality of our data
@@ -64,7 +63,7 @@ data %>%
 
 data %>%
   filter(Animal == "Lambs") %>%
-  model(STL = feasts::STL(Count))  %>%
+  fabletools::model(STL = feasts::STL(Count))  %>%
   components() %>%
   autoplot()
 
@@ -90,13 +89,14 @@ gridExtra::grid.arrange(plot1, plot2, ncol = 2)
 # Let's forecast into the future for Victoria using different models
 models <- data %>%
   filter(Animal == "Lambs") %>%
-  fable::model(ets = ETS(Count ~ trend()),
+  fabletools::model(ets = ETS(Count ~ trend()),
                arima = ARIMA(Count ~ trend()))
 
 forecasts <- models %>%
   fabletools::forecast(h = "5 years")
 
-### ¯\_(ツ)_/¯ What are the classes of the created objects? What are their special properties?
+### ¯\_(ツ)_/¯ What are the classes of the created objects?
+### What are their special properties?
 ?tsibble
 "YOUR INVESTIGATION"
 
@@ -111,7 +111,7 @@ forecasts %>%
   ggtitle("ARIMA model")
 
 ### ¯\_(ツ)_/¯ Which of the models seems more realistic?
-# What are each models problems in the short and long term?
+### What are each models problems in the short and long term?
 print("I think the model using the...")
 
 # Let's confirm this by looking at model statistics

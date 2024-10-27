@@ -138,7 +138,7 @@ ___
 ```{r quiz-material, echo=TRUE, include=FALSE}
 # INSERT INCORRECT AND CORRECT TSIBBLE OUTPUTS HERE, FROM WHERE THOOO
 
-pedestrian
+# pedestrian
 
 ```
 
