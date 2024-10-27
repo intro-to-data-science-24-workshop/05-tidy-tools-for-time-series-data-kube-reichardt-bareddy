@@ -31,7 +31,7 @@ The tidyverse is an ever-evolving set of packages that work together and adhere 
 
 > However, it also is not a snooty self-appraisal of the tidyverse. It heavily emphasizes that **great packages** exist **outside** in other *-verses*.
 
-We can sum up the principles as:
+We can sum up the key principles as:
 
 1.  **Reuse Existing Data Structures**\
     Tidyverse packages are designed to work with existing R data structures, primarily data frames or tibbles for rectangular data (rows as observations, columns as variables). For specialized data types (e.g., strings, dates), packages like `stringr` or `lubridate` handle specific variable types, typically using base R vector types or creating simple S3 classes if needed.
@@ -40,8 +40,9 @@ We can sum up the principles as:
     In the tidyverse, complex data tasks are handled by combining simple functions using the pipe operator (`%>%`). Each function is designed to do one thing clearly and well, making it easy to understand and combine with others in a pipeline.\
     Unlike `baseR` or other packages, the data object **always** goes first.
 
-3.  **Embrace Functional Programming\
-    **Tidyverse packages embrace R’s functional programming style, preferring immutable objects (which don’t change after creation) and functions like `map` from `purrr` for looping over data, rather than traditional for-loops.
+3.  **Embrace Functional Programming**
+
+    Tidyverse packages embrace R’s functional programming style, preferring immutable objects (which don’t change after creation) and functions like `map` from `purrr` for looping over data, rather than traditional for-loops.
 
     Functional programming also means working with generic [S3 and S4 functions](https://cran.r-project.org/doc/contrib/Genolini-S4tutorialV0-5en.pdf) that integrate well with pipelines, focusing on predictable, consistent transformations and minimizing mutable state to keep code reliable.
 
@@ -90,7 +91,25 @@ quiz(
 
 ### How do tidy principles apply to *tsibble*?
 
-Since time-series data are a bit structurally different from normal tidy data, the tidy principles are adapted
+::: {style="border: 1px solid #007BFF; background-color: #E7F3FF; padding: 15px; border-radius: 5px; margin: 20px 0;"}
+**Reminder:** Tidy data rules
+
+1.  Each column is one (and only one) variable. *Except for nested data frames.*
+2.  Each row is an observation.
+3.  Each observational unit has its own table.
+:::
+
+Since time-series data are a bit structurally different from normal tidy data, the tidy data rules are not sufficient to ensure that functions can be applied in the same manner without leading to different results. As the tidy principles state that application of the verbals should be (1) easy for humans and (2) transformations on objects predictable, we need to add more rules to ensure this.
+
+The *tidy data rules* are extended in `tsibble` with the following:
+
+1.  Index is a variable with inherent ordering from past to present.
+
+2.  Key is a set of variables that define observational units over time.
+
+3.  Each observation should be uniquely identified by index and key(s).
+
+4.  Each observational unit should be measured at a common interval, if regularly spaced.
 
 ### Exploring time-series datasets
 
@@ -101,18 +120,10 @@ aussie_flights <- tsibbledata::ansett %>% as_tibble
 tsibbledata::ansett
 ```
 
--   introduce toy data set
-
-    -   convert to tsibble
-
-    -   explore
-
-    -   show and reinforce what is key and what is index
-
 ```{r introduce-toy-data, exercise=TRUE}
 # sadly, your colleague has saved the ansett data not in the format shown above, but as a normal tibble
 # convert the object into a tsibble by using the correct keys
-aussie_flights <- as_tsibble(___)
+aussie_flights <- as_tsibble(aussie_flights, ___)
 
 # explore the dataset using your own workflow
 # does it contain gaps and/or NAs?
@@ -124,32 +135,38 @@ ___
 
     -   choose correct time-series structures given different examples / **regular vs irregular**
 
+```{r quiz-material, echo=TRUE, include=FALSE}
+# INSERT INCORRECT AND CORRECT TSIBBLE OUTPUTS HERE, FROM WHERE THOOO
+
+pedestrian
+
+```
+
 ```{r quiz}
 quiz(
   question("Select the correct the answer that shows regular time-series data with one key.",
-    answer("base"),
-    answer("tools"),
-    answer("utils", correct = TRUE),
-    answer("codetools")
+    answer("Output A"),
+    answer("Output B"),
+    answer("Output C", correct = TRUE),
+    answer("Output D")
   ),
-  question("In the following 'tibble', which row shows the index of the time-series?",
-    answer("Time-series data with wrong indexes", correct = TRUE),
-    answer("tools"),
-    answer("stats"),
-    answer("grid", correct = TRUE)
+  question("In the 'tibbles' above, which column shows the index of the time-series?",
+    answer("Month", correct = TRUE),
+    answer("Quarter"),
+    answer("Season"),
+    answer("Department")
   ),
-  question("What type of time-series data is shown in the question before?",
-    answer("Regular time-series data"),
-    answer("Irregular time-series data"),
-    answer("We can not tell.", correct = TRUE)),
-  question("Is above dataset tsibble-tidy from what you see, or do you need to tidy it up (e.g. using tidyr)?",
-    answer("xx", correct = TRUE))
+  question("Is above dataset (Output X) tsibble-tidy from what you see, or do you need to tidy it up (e.g. using tidyr)?",
+    answer("It's tidy. But needs more tidying according to tsibble tidy rules.", correct = TRUE),
+    answer("It's  nowhere near tidy."),
+    answer("No more work to do. Let's begin analyzing.")
+  )
 )
 ```
 
 ### Data wrangling
 
--   quick reinforcement that this works the same as in *dplyr*
+-   quick reinforcement that this works (mainly) the same as in *dplyr*
 
     -   subsetting date ranges
 
@@ -157,7 +174,17 @@ quiz(
 
     -   Extra: wider / longer
 
--   `fill_gaps()` and `index_by()`
+-   Specific tsibble verbals
+
+    -   `index_by()`
+
+    -   `group_by_key()`
+
+-   `has_gaps()`, `scan_gaps()` and `fill_gaps()`
+
+    -   very straightforward. explain verbal with `*_gaps()`, then straight to exercise
+
+    -   how to fill gaps using an algorithm for missing data? e.g. mean, if more time a prediction
 
 **Exercise:** Filter and aggregate data over different periods, explore missing values, and fill gaps where necessary.
 
@@ -171,7 +198,7 @@ quiz(
 
 ### Extracting features
 
-`feasts()`
+-   `components()` to check the strength of the seasonality effect
 
 In the next section, we will discuss how to combine the outputs from the decomposition and feature extraction with `feasts`' integrated methods for the `ggplot` package.
 
