@@ -29,16 +29,16 @@ interval(data)
 ### ¯\_(ツ)_/¯ How many rows does the data set have? What does this mean for the amount of observations?
 "YOUR CODE"
 
-### ¯\_(ツ)_/¯ How many different time-series does the dataset consist of?
-### Can you easily descibe them in a table using dplyr::tally()?
+### ¯\_(ツ)_/¯ How many different time-series does the data set consist of?
+### Can you easily describe them in a table using dplyr::tally()?
 data # %>%
   # group_by_key(), group_by(), or another way
 
-# To start analizing the data, we first explore the data and identify potential gaps
+# To start analyzing the data, we first explore the data and identify potential gaps
 has_gaps(data) %>%
   .$.gaps # all good, let's move on
 
-# Since the dataset is huge, we subset only Lambs and get an overview
+# Since the data set is huge, we subset only Lambs and get an overview
 autoplot(data %>% filter(Animal == "Lambs"))
 
 ### ¯\_(ツ)_/¯ What does this first exploratory plot imply? Try describing using your own words
