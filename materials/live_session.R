@@ -30,7 +30,7 @@ interval(data)
 ### ¯\_(ツ)_/¯ How many different time-series does the data set consist of?
 ### Can you easily describe them in a table using dplyr::tally()?
 data # %>%
-  # group_by_key(), group_by(), or another way
+  # group_by_key(), group_by(), or another way =)
 
 # To start analyzing the data, we first explore the data and identify potential gaps
 has_gaps(data) %>%
