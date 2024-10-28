@@ -9,9 +9,7 @@ runtime: shiny_prerendered
 
 ```{r load-install-packages, include=FALSE}
 install.packages("pacman", repos = "http://cran.us.r-project.org")
-install.packages("remotes", repos = "http://cran.us.r-project.org")
-remotes::install_github("earowang/tsibbletalk")
-pacman::p_load("learnr", "tidyverse", "tsibble", "tsibbledata", "feasts", "fable", "fabletools", "crosstalk", "tsibbletalk", "ggplot2", "plotly")
+pacman::p_load("learnr", "tidyverse", "tsibble", "tsibbledata", "feasts", "fable", "fabletools")
 # library(learnr)
 # library(tidyverse)
 # library(tsibble)
