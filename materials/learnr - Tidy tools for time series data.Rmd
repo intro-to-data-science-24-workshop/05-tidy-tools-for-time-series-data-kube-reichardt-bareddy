@@ -7,9 +7,19 @@ output: learnr::tutorial
 runtime: shiny_prerendered
 ---
 
-```{r setup, include=FALSE}
-library(learnr)
-library(tidyverse)
+```{r load-install-packages, include=FALSE}
+install.packages("pacman", repos = "http://cran.us.r-project.org")
+install.packages("remotes", repos = "http://cran.us.r-project.org")
+remotes::install_github("earowang/tsibbletalk")
+pacman::p_load("learnr", "tidyverse", "tsibble", "tsibbledata", "feasts", "fable", "fabletools", "crosstalk", "tsibbletalk", "ggplot2", "plotly")
+# library(learnr)
+# library(tidyverse)
+# library(tsibble)
+# library(tsibbledata)
+# library(feasts)
+# library(fable)
+# library(fabletools)
+# library(crosstalk)
 knitr::opts_chunk$set(echo = FALSE)
 ```
 
@@ -21,13 +31,13 @@ Can be accessed with `vignette("manifesto")`
 
 -   first try of our heavenly `R`ather Hadley Wickham to codify the *tidy principles*
 
--   "aspirational and likely to change heavily in the future"
+-   it is "aspirational and likely to change heavily in the future"
 
--   other definitions (e.g. [Tidy Data](https://www.jstatsoft.org/article/view/v059i10), [tidy evaluation](https://adv-r.hadley.nz/evaluation.html)) exist within the tidyverse already
+-   other definitions (e.g. [Tidy Data](https://www.jstatsoft.org/article/view/v059i10), [tidy evaluation](https://adv-r.hadley.nz/evaluation.html)) exist within the *tidyverse* already
 
-#### What does the tidy manifesto tell us about the *tidyverse*?
+### What does the tidy manifesto tell us about the *tidyverse*?
 
-The tidyverse is an ever-evolving set of packages that work together and adhere to principles based on humam-centered design and reusability. These principles ensure that once you master one tidyverse package, it becomes easier to pick up others, as they follow similar rules and work well together.
+The tidyverse is an ever-evolving set of packages that work together and adhere to principles based on human-centered design and re-usability. These principles ensure that once you master one tidyverse package, it becomes easier to pick up others, as they follow similar rules and work well together.
 
 > However, it also is not a snooty self-appraisal of the tidyverse. It heavily emphasizes that **great packages** exist **outside** in other *-verses*.
 
@@ -37,7 +47,8 @@ We can sum up the key principles as:
     Tidyverse packages are designed to work with existing R data structures, primarily data frames or tibbles for rectangular data (rows as observations, columns as variables). For specialized data types (e.g., strings, dates), packages like `stringr` or `lubridate` handle specific variable types, typically using base R vector types or creating simple S3 classes if needed.
 
 2.  **Compose Simple Functions with the Pipe**\
-    In the tidyverse, complex data tasks are handled by combining simple functions using the pipe operator (`%>%`). Each function is designed to do one thing clearly and well, making it easy to understand and combine with others in a pipeline.\
+    In the tidyverse, complex data tasks are handled by combining simple functions using the pipe operator (`%>%`). Each function is designed to do one thing clearly and well, making it easy to understand and combine with others in a pipeline.
+
     Unlike `baseR` or other packages, the data object **always** goes first.
 
 3.  **Embrace Functional Programming**
@@ -60,6 +71,8 @@ Write down (load) all the packages from the *tidyverse* that you know of so far.
 ```{r tidy-ex, exercise=TRUE}
 
 ```
+
+### Quiz: The tidy universe
 
 To check your own knowledge on the tidyverse prior to diving into this `learnr` tutorial, answer the questions below. Multiple options might be true (but not for all questions).
 
@@ -89,7 +102,7 @@ quiz(
 
 ## The *tsibble* package
 
-### How do tidy principles apply to *tsibble*?
+### How do tidy principles apply to *tsibbles*?
 
 ::: {style="border: 1px solid #007BFF; background-color: #E7F3FF; padding: 15px; border-radius: 5px; margin: 20px 0;"}
 **Reminder:** Tidy data rules
@@ -111,16 +124,22 @@ The *tidy data rules* are extended in `tsibble` with the following:
 
 4.  Each observational unit should be measured at a common interval, if regularly spaced.
 
+![](images/tsibble-semantics.png){style="background-color: grey; width: 100%;"}
+
 ### Exploring time-series datasets
 
 In this tutorial, we will be working with the `ansett` data set from the `tsibbledata` package. The data set contains passenger data of multiple flight routes of the *Ansett* airline.
 
-```{r prep, include=FALSE, echo=TRUE}
-aussie_flights <- tsibbledata::ansett %>% as_tibble
-tsibbledata::ansett
+```{r setup, echo=TRUE}
+aussie_flights <- tsibbledata::ansett
+aussie_flights
 ```
 
-```{r introduce-toy-data, exercise=TRUE}
+```{r prep1, include=FALSE, echo=TRUE}
+aussie_flights <- tsibbledata::ansett %>% as_tibble
+```
+
+```{r introduce-toy-data, exercise=TRUE, exercise.setup = "prep1"}
 # sadly, your colleague has saved the ansett data not in the format shown above, but as a normal tibble
 # convert the object into a tsibble by using the correct keys
 aussie_flights <- as_tsibble(aussie_flights, ___)
@@ -131,89 +150,196 @@ summary(aussie_flights)
 ___
 ```
 
+### Quiz: `Tsibble`
+
 Below, you can see *R Output* from different data objects within R. They are labeled `Output A` to `Output X`. Answer the questions below.
 
-```{r quiz-material, echo=TRUE, include=FALSE}
-# INSERT INCORRECT AND CORRECT TSIBBLE OUTPUTS HERE, FROM WHERE THOOO
-
-# pedestrian
-
+```{r quiz-material, echo=FALSE}
+OUTPUT_A <- tsibble::pedestrian
+print("Output A")
+OUTPUT_A
+OUTPUT_B <- OUTPUT_A %>%
+  mutate(Date_Time = Date_Time + runif(n(), 200, 10000))
+print("Output B")
+OUTPUT_B
+OUTPUT_C <- OUTPUT_A %>%
+  mutate(Key = sample(LETTERS, n(), replace = TRUE)) %>%
+  as_tsibble(key = c("Key", "Sensor"), index = "Date_Time")
+print("Output C")
+OUTPUT_C
+OUTPUT_X <- tsibbledata::gafa_stock %>%
+  as_tibble()
+print("Output X")
+OUTPUT_X
 ```
 
-```{r quiz}
+```{r quiz-tsibbles, echo=FALSE}
 quiz(
-  question("Select the correct the answer that shows regular time-series data with one key.",
-    answer("Output A"),
+  question(
+    "Select the correct the answer that shows regular time-series data with one key.",
+    answer("Output A", correct = TRUE),
     answer("Output B"),
-    answer("Output C", correct = TRUE),
-    answer("Output D")
+    answer("Output C")
   ),
-  question("In the 'tibbles' above, which column shows the index of the time-series?",
-    answer("Month", correct = TRUE),
-    answer("Quarter"),
-    answer("Season"),
-    answer("Department")
+  question(
+    "In the 'tsibbles' above, which column shows the index of the time-series?",
+    answer("Time_Date", correct = TRUE),
+    answer("Time"),
+    answer("Date"),
+    answer("Count")
   ),
-  question("Is above dataset (Output X) tsibble-tidy from what you see, or do you need to tidy it up (e.g. using tidyr)?",
-    answer("It's tidy. But needs more tidying according to tsibble tidy rules.", correct = TRUE),
+  question(
+    "Is above dataset (Output X) tsibble-tidy from what you see, or do you need to tidy it up (e.g. using tidyr)?",
+    answer("It's tidy. But needs more tidying according to tsibble tidy rules."),
     answer("It's  nowhere near tidy."),
-    answer("No more work to do. Let's begin analyzing.")
+    answer("No more work to do. Let's begin analyzing.", correct = TRUE),
+    incorrect = "There is no more work to do. Leaving out weekends and only specifying weekdays as stock data does, is considered a regular time-series which does not need gap-filling. We only need to convert it to a tsibble."
+  ),
+  question(
+    "How many measurements does Output X have?",
+    answer("6", correct = TRUE),
+    answer("5"),
+    answer("1"),
+    answer("8")
   )
 )
 ```
 
 ### Data wrangling
 
--   quick reinforcement that this works (mainly) the same as in *dplyr*
+When handling data in *tsibbles*, we can use the same grammar as with other data frames. For the sake of this *tidyverse*-heavy tutorial, we will introduce the `dplyr` verbals for use with time-series data.
 
-    -   subsetting date ranges
+The `tsibble` package is designed specifically for handling time-series data in a tidy format, and it allows us to use familiar `dplyr` functions while adding powerful tools for handling temporal data.
 
-    -   aggregating
+Time-series data often comes in a **wide format**, where each column represents a different time series (e.g., different measurements or variables). For tidy analysis, it’s often helpful to convert this to a **long format**, where each row represents a single measurement with associated metadata columns, such as time and variable type. In the realm of time-series data, this are the *key* and *index* variables. Once your data is in a tidy, long format, you can leverage `dplyr` and `tsibble` functions for time-based operations, such as filtering time ranges, grouping by different keys or intervals, and aggregating measurements.
 
-    -   Extra: wider / longer
+For filtering data according to different keys, we can simply use `dplyr::filter`.
 
--   Specific tsibble verbals
+```{r echo=TRUE,eval=FALSE}
+aussie_flights %>%
+  filter(Class == "Business")
+```
 
-    -   `index_by()`
+This works as well for subsetting time-ranges in our time-series, which may for example be needed if the type of data collection changed over time. This happens regularly in data provided by official offices or organizations, for example if the definition of who is included in unemployment statistics changes.
 
-    -   `group_by_key()`
+While we use standard `dplyr` grammar to filter, `tsibble` introduces new date formats - `yearweek`, `yearmonth`, and `yearquarter` - which can be used to create a limit to filter by.
 
--   `has_gaps()`, `scan_gaps()` and `fill_gaps()`
+```{r echo=TRUE,eval=FALSE}
+aussie_flights %>%
+  filter(Week > yearweek("1990 W42"))
+```
 
-    -   very straightforward. explain verbal with `*_gaps()`, then straight to exercise
+### Specific `tsibble` verbals
 
-    -   how to fill gaps using an algorithm for missing data? e.g. mean, if more time a prediction
+However, because of the nature of *tsibbles* which include specific key and index variables with recurring relevance for time-series data wrangling, the package introduces a new functions with very similar syntax and usage as `dplyr::group_by()`, namely `group_by_key()`.
 
-**Exercise:** Filter and aggregate data over different periods, explore missing values, and fill gaps where necessary.
+It does and works exactly like one expects to.
 
-## Feature extraction using *feasts*
+```{r echo=TRUE, eval=TRUE}
+aussie_flights %>%
+  group_by_key()
+```
 
-### Decomposition
+For easier manipulation of time frames and aggregating time-series data over period, the verbal `index_by()` is introduced, which - just like grouping with `group_by()` does for *tibbles* - the information on index grouping to a *tsibble*.
 
--   decomposition using `STL()`
+With that information, we can aggregate variables over different time frames, for example find the maxima within months, aggregate monthly to yearly data or even aggregate with custom functions. We could, for example, aggregate the weekly attendance record of students by academic years, which can vary from university to university and therefore need a unique specification different from calendar year.
 
--   decompose the toy data with feasts and write short interpretation on each component
+The former two examples are shown in the code chunk below.
 
-### Extracting features
+```{r echo=TRUE, eval=FALSE}
+aussie_flights %>%
+  index_by(Year_Month = yearmonth(.)) %>%
+  summarise(Passengers_Max = max(Passengers))
 
--   `components()` to check the strength of the seasonality effect
+aussie_flights %>%
+  index_by(Year = year(.)) %>%
+  summarise(Passengers = sum(Passengers))
+```
 
-In the next section, we will discuss how to combine the outputs from the decomposition and feature extraction with `feasts`' integrated methods for the `ggplot` package.
+```{r prep2, include=FALSE, echo=TRUE}
+aussie_flights_finalFINAL67 <- tsibbledata::ansett %>%
+  as_tibble() %>%
+  tidyr::pivot_wider(names_from = Week, values_from = Passengers)
+aussie_flights_finalFINAL67
+```
 
-## Visualization
+```{r wrangling-exercise, exercise=TRUE}
+# your colleague (group works, I swear man!) has saved the data in the wrong format again. use pivot_longer to bring the data into wide format and re-create our toy data set
+aussie_flights <- aussie_flights_finalFINAL67 %>%
+  pivot_longer(__)
 
-### Basic workflow
+# after having the data frame in the correct format, subset it to only include the time-series for "First" class passengers, for flights starting in Sydney (SYD)
 
-using gg_subseason etc.
 
-`autoplot()`
+# aggregate the subsetted data in the timeseries from weekly data to quarterly data
 
-### Using the *tsibbletalk* package
+```
 
-The `tsibbletalk` package allows the creation of interactive graphics. This is especially beneficial for exploratory data analysis with large amounts of time-series data. Due the multi-faceted nature of time-series data, you might want to simultaneously see single features of a time-series (i.e. trends and cyclic patterns) as well as evaluate model fit parameters.
+```{r wrangling-exercise-hint-1}
+filter(str_detect(Airports, "^SYD"))
+```
 
-The package introduces a `shared key` to the *tsibble*, which can be used with the `crosstalk` package (i.e. brushing/coloring across an ensemble of graphics). The shared key allows to color a specific time series in a plot, which will be also color-marked in all other plots where the same time-series data is used.
+```{r wrangling-exercise-hint-2}
+aussie_flights %>%
+  group_by_key() %>%
+  index_by(Quarter = yearquarter(.)) %>%
+  summarise(Passengers = sum(Passengers))
+```
 
-You can find a short introduction to the crosstalk package [here](Using Crosstalk (rstudio.github.io).
+### Identifying and filling gaps in time-series
 
-## Bonus: Forecasting with *fable*
+![](images/tsibbleworkflow.png){style="width: 100%;"}
+
+To quickly identify if a time-series has gaps and to fill them in, `tsibble` introduces the `*_gaps()` family of functions. They only work with and for *tsibbles.*
+
+`has_gaps()` is used to identify generally if the data set contains gaps within. Using the `.full =` argument, you can specify if time-series are treated individually, meaning that only gaps within each time-series are filled, or if the time-series are interconnected and the same starting and end point for all sub-series should be used. While `has_gaps()` returns a data frame of the time-series with an added column `.gaps = TRUE/FALSE`, the function `scan_gaps()` only returns the rows that are not contained in the time-series data yet.
+
+Using `fill_gaps()`, we can quickly fill in the missing data. By standard, the function will add NA values for each missing observation. However, we can also provide custom functions (e.g. mean or interpolation) to fill in the data gaps.
+
+The code below showcases the filling of gaps by the group means of each time-series.
+
+```{r echo=TRUE, eval=FALSE}
+aussie_flights %>%
+  group_by_key() %>%
+  fill_gaps(Passengers = mean(Passengers))
+```
+
+<!-- ## Visualization using the `tsibbletalk` package -->
+
+<!-- The `tsibbletalk` package allows the creation of interactive graphics. This is especially beneficial for exploratory data analysis with large amounts of time-series data. Due the multi-faceted nature of time-series data, you might want to simultaneously see single features of a time-series (i.e. trends and cyclic patterns) as well as evaluate model fit parameters. -->
+
+<!-- The package introduces a `shared key` to the *tsibble*, which can be used with the `crosstalk` package (i.e. brushing/coloring across an ensemble of graphics). The shared key allows to color a specific time series in a plot, which will be also color-marked in all other plots where the same time-series data is used. -->
+
+<!-- You can find a short introduction to the `crosstalk` package [here](https://rstudio.github.io/crosstalk/using.html). -->
+
+<!-- You can create a *shared tsibble* as follows. -->
+
+<!-- ```{r echo=TRUE, eval=FALSE} -->
+<!-- aussie_flights_shared <- as_shared_tsibble(aussie_flights) -->
+<!-- ``` -->
+
+<!-- ```{r showcase-tsibbletalk, echo=FALSE, eval=TRUE} -->
+<!-- aussie_flights_shared <- aussie_flights %>% -->
+<!--   as_shared_tsibble(spec = (Airports / Class) * Passengers) -->
+
+<!-- aussie_flights_feat <- aussie_flights_shared %>% -->
+<!--   features(Passengers, feat_stl) -->
+
+<!-- p0 <- plotly_key_tree(aussie_flights_shared, height = 900, width = 600) -->
+
+<!-- p1 <- aussie_flights_shared %>% -->
+<!--   ggplot(aes(x = Week, y = Passengers)) + -->
+<!--   geom_line(aes(group = Airports), alpha = 0.5) + -->
+<!--   facet_wrap(~ Class, scales = "free_y") -->
+<!-- p2 <- aussie_flights %>% -->
+<!--   ggplot(aes(x = trend_strength, y = seasonal_strength_year)) + -->
+<!--   geom_point(aes(group = Airports)) -->
+
+<!-- subplot(p0, -->
+<!--   subplot( -->
+<!--     ggplotly(p1, tooltip = "Airports", width = 900), -->
+<!--     ggplotly(p2, tooltip = "Airports", width = 900), -->
+<!--     nrows = 2), -->
+<!--   widths = c(.4, .6)) %>% -->
+<!--   highlight(dynamic = TRUE) -->
+<!-- ``` -->

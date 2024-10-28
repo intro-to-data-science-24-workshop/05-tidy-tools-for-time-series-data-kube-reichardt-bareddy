@@ -87,16 +87,16 @@ plot2 <- data %>%
 
 gridExtra::grid.arrange(plot1, plot2, ncol = 2)
 
-# Let's forecast into the future for Victoria using different models
+# Let's forecast into the future for some states using different models
 models <- data %>%
   filter(Animal == "Lambs") %>%
-  fabletools::model(ets = ETS(Count ~ trend()),
-               arima = ARIMA(Count ~ trend()))
+  fabletools::model(ets = fable::ETS(Count ~ trend() + season()),
+                    arima = fable::ARIMA(Count ~ trend() + season()))
 
 forecasts <- models %>%
   fabletools::forecast(h = "5 years")
 
-### ¯\_(ツ)_/¯ What are the classes of the created objects?
+### ¯\_(ツ)_/¯ What are the classes of the created objects "models" and "forecasts"?
 ### What are their special properties?
 ?tsibble
 "YOUR INVESTIGATION"
